@@ -1,0 +1,88 @@
+resource_types:
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
+resources:
+- name: monitoring-system-offline-deployment-repo
+  type: git
+  source:
+    uri: https://github.com/bosh-rebels/monitoring-system-offline-deployment
+    branch: master
+
+- name: deploy-release
+  type: bosh-deployment
+  source:
+    deployment: monitoring-system
+    target: ((bosh_target))
+    client: ((bosh_client))
+    client_secret: ((bosh_client_secret))
+    ca_cert: ((bosh_ca_cert))
+
+- name: monitoring-system-offline-release
+  type: s3
+  source:
+    region_name: ((s3_region))
+    bucket: binary-releases-repo-rebels
+    regexp: "deployments/monitoring-system/monitoring-system-(.*).tgz"
+    access_key_id: ((s3_access_key_id))
+    secret_access_key: ((s3_secret_access_key))
+
+jobs:
+- name: deploy-offline-deployment
+  plan:
+  - get: monitoring-system-offline-deployment-repo
+  - get: monitoring-system-offline-release
+    params: { unpack: true }
+  - put: deploy-release
+    params:
+      manifest: monitoring-system-offline-release/manifest.yml
+      stemcells:
+        - monitoring-system-offline-release/stemcell/stemcell.tgz
+      releases:
+        - monitoring-system-offline-release/releases/zookeeper-*.tgz
+        - monitoring-system-offline-release/releases/kafka-*.tgz
+        - monitoring-system-offline-release/releases/cmak-*.tgz
+        - monitoring-system-offline-release/releases/elasticsearch-*.tgz
+        - monitoring-system-offline-release/releases/kibana-*.tgz
+        - monitoring-system-offline-release/releases/elasticapm-*.tgz
+        - monitoring-system-offline-release/releases/bpm-*.tgz
+      vars_file:
+        - monitoring-system-offline-release/vars_file/vars.yml
+      vars:
+        deployment_name: monitoring-system-offline-deployment
+        elasticsearch_version: latest 
+        kibana_version: latest 
+        kafka_version: latest 
+        zookeeper_version: latest 
+        cmak_version: latest 
+        elasticapm_version: latest 
+        bpm_version: latest 
+        stemcell_os: ubuntu-xenial
+        stemcell_version: ((stemcell_version)) 
+        elasticsearch_instances: 2 
+        elasticsearch_vm_type: default 
+        elasticsearch_persistent_disk_type: default 
+        elasticsearch_network: default 
+        kibana_instances: 1 
+        kibana_vm_type: default 
+        kibana_persistent_disk_type: default 
+        kibana_network: default 
+        elasticapm_instances: 1 
+        elasticapm_vm_type: default 
+        elasticapm_network: default 
+        kafka_instances: 2 
+        kafka_vm_type: default 
+        kafka_persistent_disk_type: default 
+        kafka_network: default 
+        zookeeper_instances: 2 
+        zookeeper_vm_type: default 
+        zookeeper_network: default 
+        zookeeper_persistent_disk_type: default 
+        cmak_instances: 1 
+        cmak_vm_type: default 
+        cmak_network: default
+        errands_network: default
+        errands_vm_type: default
+        errands_persistent_disk_type: default
