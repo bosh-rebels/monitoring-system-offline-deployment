@@ -11,14 +11,19 @@ resources:
     uri: https://github.com/bosh-rebels/monitoring-system-offline-deployment
     branch: master
 
-- name: deploy-release
+- name: deploy-deployment
   type: bosh-deployment
-  source:
+  source: &bosh-deployment-source
     deployment: monitoring-system
     target: ((bosh_target))
     client: ((bosh_client))
     client_secret: ((bosh_client_secret))
     ca_cert: ((bosh_ca_cert))
+
+- name: remove-deployment
+  type: bosh-deployment
+  source: 
+    <<: *bosh-deployment-source
 
 - name: monitoring-system-offline-release
   type: s3
@@ -35,7 +40,7 @@ jobs:
   - get: monitoring-system-offline-deployment-repo
   - get: monitoring-system-offline-release
     params: { unpack: true }
-  - put: deploy-release
+  - put: deploy-deployment
     params:
       manifest: monitoring-system-offline-release/manifest.yml
       stemcells:
@@ -48,10 +53,10 @@ jobs:
         - monitoring-system-offline-release/releases/kibana-*.tgz
         - monitoring-system-offline-release/releases/elasticapm-*.tgz
         - monitoring-system-offline-release/releases/bpm-*.tgz
-      vars_file:
+      vars_files:
         - monitoring-system-offline-release/vars_file/vars.yml
       vars:
-        deployment_name: monitoring-system-offline-deployment
+        deployment_name: monitoring-system
         elasticsearch_version: latest 
         kibana_version: latest 
         kafka_version: latest 
@@ -86,3 +91,11 @@ jobs:
         errands_network: default
         errands_vm_type: default
         errands_persistent_disk_type: default
+
+- name: remove-deployment
+  plan:
+  - put: remove-deployment
+    params:
+      delete:
+        enabled: true
+        force: true
