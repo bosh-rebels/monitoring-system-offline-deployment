@@ -22,14 +22,14 @@ resources:
 
 - name: remove-deployment
   type: bosh-deployment
-  source: 
+  source:
     <<: *bosh-deployment-source
 
 - name: monitoring-system-offline-release
   type: s3
   source:
     region_name: ((s3_region))
-    bucket: binary-releases-repo-rebels
+    bucket: ((s3_bucket_binary))
     regexp: "deployments/monitoring-system/monitoring-system-(.*).tgz"
     access_key_id: ((s3_access_key_id))
     secret_access_key: ((s3_secret_access_key))
@@ -57,36 +57,36 @@ jobs:
         - monitoring-system-offline-release/vars_file/vars.yml
       vars:
         deployment_name: monitoring-system
-        elasticsearch_version: latest 
-        kibana_version: latest 
-        kafka_version: latest 
-        zookeeper_version: latest 
-        cmak_version: latest 
-        elasticapm_version: latest 
-        bpm_version: latest 
+        elasticsearch_version: latest
+        kibana_version: latest
+        kafka_version: latest
+        zookeeper_version: latest
+        cmak_version: latest
+        elasticapm_version: latest
+        bpm_version: latest
         stemcell_os: ubuntu-xenial
-        stemcell_version: ((stemcell_version)) 
-        elasticsearch_instances: 2 
-        elasticsearch_vm_type: default 
-        elasticsearch_persistent_disk_type: default 
-        elasticsearch_network: default 
-        kibana_instances: 1 
-        kibana_vm_type: default 
-        kibana_persistent_disk_type: default 
-        kibana_network: default 
-        elasticapm_instances: 1 
-        elasticapm_vm_type: default 
-        elasticapm_network: default 
-        kafka_instances: 2 
-        kafka_vm_type: default 
-        kafka_persistent_disk_type: default 
-        kafka_network: default 
-        zookeeper_instances: 2 
-        zookeeper_vm_type: default 
-        zookeeper_network: default 
-        zookeeper_persistent_disk_type: default 
-        cmak_instances: 1 
-        cmak_vm_type: default 
+        stemcell_version: ((stemcell_version))
+        elasticsearch_instances: 2
+        elasticsearch_vm_type: default
+        elasticsearch_persistent_disk_type: default
+        elasticsearch_network: default
+        kibana_instances: 1
+        kibana_vm_type: default
+        kibana_persistent_disk_type: default
+        kibana_network: default
+        elasticapm_instances: 1
+        elasticapm_vm_type: default
+        elasticapm_network: default
+        kafka_instances: 2
+        kafka_vm_type: default
+        kafka_persistent_disk_type: default
+        kafka_network: default
+        zookeeper_instances: 2
+        zookeeper_vm_type: default
+        zookeeper_network: default
+        zookeeper_persistent_disk_type: default
+        cmak_instances: 1
+        cmak_vm_type: default
         cmak_network: default
         errands_network: default
         errands_vm_type: default
